@@ -12,35 +12,61 @@ st.set_page_config(page_title="Bike Sharing Dashboard", layout="wide")
 st.title("🚲 Bike Sharing Dashboard")
 st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan dataset `day.csv` dan `hour.csv`.")
 
-st.sidebar.header("Filter Data")
-# Filter Season
-season = st.sidebar.multiselect(
-    "Pilih Season",
-    options=day['season'].unique(),
-    default=day['season'].unique()
+#Sidebar
+
+
+# === DICTIONARY OPTIONS ===
+season_options = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
+weather_options = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
+
+# === SIDEBAR FILTER ===
+st.sidebar.header("🔍 Filter Dashboard")
+
+# Filter Tanggal
+min_date = min(day_df['date'].min(), hour_df['date'].min())
+max_date = max(day_df['date'].max(), hour_df['date'].max())
+
+start_date = st.sidebar.date_input("Start Date", min_date)
+end_date = st.sidebar.date_input("End Date", max_date)
+
+# Filter Musim
+selected_seasons = st.sidebar.multiselect(
+    "Pilih Musim",
+    options=list(season_options.keys()),
+    format_func=lambda x: season_options[x],
+    default=list(season_options.keys())
 )
 
-# Filter Weather
-weather = st.sidebar.multiselect(
-    "Pilih Cuaca",
-    options=day['weathersit'].unique(),
-    default=day['weathersit'].unique()
+# Filter Cuaca
+selected_weather = st.sidebar.multiselect(
+    "Pilih Kondisi Cuaca",
+    options=list(weather_options.keys()),
+    format_func=lambda x: weather_options[x],
+    default=list(weather_options.keys())
 )
 
-# Filter Rentang Tanggal
-date_range = st.sidebar.date_input(
-    "Rentang Tanggal",
-    [pd.to_datetime(day['dteday']).min(), pd.to_datetime(day['dteday']).max()]
+# Pilih Metric
+metric = st.sidebar.radio(
+    "Pilih Jenis Data",
+    options=['cnt', 'registered', 'casual'],
+    format_func=lambda x: f"Total ({x})" if x == "cnt" else x.capitalize()
 )
 
-# Apply Filter
-day_filtered = day[
-    (day['season'].isin(season)) &
-    (day['weathersit'].isin(weather)) &
-    (pd.to_datetime(day['dteday']) >= pd.to_datetime(date_range[0])) &
-    (pd.to_datetime(day['dteday']) <= pd.to_datetime(date_range[1]))
+# === APPLY FILTER ke day_df ===
+filtered_day_df = day_df[
+    (day_df['date'] >= pd.to_datetime(start_date)) &
+    (day_df['date'] <= pd.to_datetime(end_date)) &
+    (day_df['season'].isin(selected_seasons)) &
+    (day_df['weathersit'].isin(selected_weather))
 ]
 
+# === APPLY FILTER ke hour_df ===
+filtered_hour_df = hour_df[
+    (hour_df['date'] >= pd.to_datetime(start_date)) &
+    (hour_df['date'] <= pd.to_datetime(end_date)) &
+    (hour_df['season'].isin(selected_seasons)) &
+    (hour_df['weathersit'].isin(selected_weather))
+]
 st.subheader("📊 Key Metrics")
 col1, col2, col3 = st.columns(3)
 
