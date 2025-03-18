@@ -133,8 +133,8 @@ st.subheader("⏰ Waktu Puncak Penyewaan")
 
 hour_df['date'] = pd.to_datetime(hour_df['date'])  # sudah rename 'dteday' ke 'date'
 hour_filtered = hour_df[
-    (hour_df['season'].isin(season)) &
-    (hour_df['weather_situation'].isin(weather)) &
+    (hour_df['season'].isin(selected_seasons)) &
+    (hour_df['weather_situation'].isin(selected_weather)) &
     (hour_df['date'] >= pd.to_datetime(date_range[0])) &
     (hour_df['date'] <= pd.to_datetime(date_range[1]))
 ]
