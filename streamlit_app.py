@@ -104,7 +104,7 @@ filtered_day_df = day_df[
     (day_df['date'] >= pd.to_datetime(start_date)) &
     (day_df['date'] <= pd.to_datetime(end_date)) &
     (day_df['season'].isin(selected_seasons)) &
-    (day_df['weathersit'].isin(selected_weather))
+    (day_df['weather_situation'].isin(selected_weather))
 ]
 
 # === APPLY FILTER ke hour_df ===
@@ -112,8 +112,9 @@ filtered_hour_df = hour_df[
     (hour_df['date'] >= pd.to_datetime(start_date)) &
     (hour_df['date'] <= pd.to_datetime(end_date)) &
     (hour_df['season'].isin(selected_seasons)) &
-    (hour_df['weathersit'].isin(selected_weather))
+    (hour_df['weather_situation'].isin(selected_weather))
 ]
+
 st.subheader("📊 Key Metrics")
 col1, col2, col3 = st.columns(3)
 
