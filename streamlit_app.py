@@ -117,26 +117,28 @@ filtered_hour_df = hour_df[
 st.subheader("📊 Key Metrics")
 col1, col2, col3 = st.columns(3)
 
+# === METRICS ===
 with col1:
-    st.metric("Total Penyewaan", f"{day_filtered['cnt'].sum():,}")
+    st.metric("Total Penyewaan", f"{filtered_day_df['total_count'].sum():,}")
 
 with col2:
-    st.metric("Rata-rata Penyewaan Harian", f"{day_filtered['cnt'].mean():.2f}")
+    st.metric("Rata-rata Penyewaan Harian", f"{filtered_day_df['total_count'].mean():.2f}")
 
 with col3:
-    st.metric("Total Pengguna Casual", f"{day_filtered['casual'].sum():,}")
+    st.metric("Total Pengguna Casual", f"{filtered_day_df['casual'].sum():,}")
 
+# === WAKTU PUNCAK PENYEWAAN ===
 st.subheader("⏰ Waktu Puncak Penyewaan")
 
-hour['dteday'] = pd.to_datetime(hour['dteday'])
-hour_filtered = hour[
-    (hour['season'].isin(season)) &
-    (hour['weathersit'].isin(weather)) &
-    (hour['dteday'] >= pd.to_datetime(date_range[0])) &
-    (hour['dteday'] <= pd.to_datetime(date_range[1]))
+hour_df['date'] = pd.to_datetime(hour_df['date'])  # sudah rename 'dteday' ke 'date'
+hour_filtered = hour_df[
+    (hour_df['season'].isin(season)) &
+    (hour_df['weather_situation'].isin(weather)) &
+    (hour_df['date'] >= pd.to_datetime(date_range[0])) &
+    (hour_df['date'] <= pd.to_datetime(date_range[1]))
 ]
 
-peak_hours = hour_filtered.groupby('hr')['cnt'].sum()
+peak_hours = hour_filtered.groupby('hour')['total_count'].sum()
 
 fig, ax = plt.subplots()
 sns.lineplot(x=peak_hours.index, y=peak_hours.values, ax=ax)
@@ -145,22 +147,24 @@ ax.set_xlabel("Jam")
 ax.set_ylabel("Total Penyewaan")
 st.pyplot(fig)
 
+# === PENGARUH CUACA ===
 st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
 
-weather_mapping = {1: 'Cerah', 2: 'Mendung', 3: 'Hujan'}
-day_filtered['weather_label'] = day_filtered['weathersit'].map(weather_mapping)
+weather_mapping = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
+day_filtered['weather_label'] = day_filtered['weather_situation'].map(weather_mapping)
 
 fig, ax = plt.subplots()
-sns.boxplot(x='weather_label', y='cnt', data=day_filtered, ax=ax)
+sns.boxplot(x='weather_label', y='total_count', data=day_filtered, ax=ax)
 ax.set_title("Distribusi Penyewaan Berdasarkan Cuaca")
 st.pyplot(fig)
 
+# === PENGARUH MUSIM ===
 st.subheader("🍂 Pengaruh Musim terhadap Penyewaan")
 
 season_mapping = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
 day_filtered['season_label'] = day_filtered['season'].map(season_mapping)
 
 fig, ax = plt.subplots()
-sns.barplot(x='season_label', y='cnt', data=day_filtered, estimator=sum, ax=ax)
+sns.barplot(x='season_label', y='total_count', data=day_filtered, estimator=sum, ax=ax)
 ax.set_title("Total Penyewaan Berdasarkan Musim")
 st.pyplot(fig)
