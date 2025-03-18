@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 day_df = pd.read_csv("day.csv")
 day_df['date'] = pd.to_datetime(day_df['dteday'])
 
+# error handling beda nama kolom
+(day_df['weathersit'].isin(selected_weather))
+
 # === DICTIONARY OPTIONS ===
 season_options = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
 weather_options = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
