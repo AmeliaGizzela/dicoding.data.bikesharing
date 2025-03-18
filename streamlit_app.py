@@ -20,7 +20,61 @@ day_df.rename(columns={
 }, inplace=True)
 day_df['date'] = pd.to_datetime(day_df['date'])
 
-# === CLEANING: Remove Outlier ===
+# === CLEANING: Data  ===
+# CLEANING day_df
+# =======================
+
+# 1. Drop kolom yang tidak digunakan
+day_df.drop(columns=['instant'], inplace=True)
+
+# 2. Rename kolom agar lebih deskriptif
+day_df.rename(columns={
+    'dteday': 'date',
+    'yr': 'year',
+    'mnth': 'month',
+    'holiday': 'is_holiday',
+    'weekday': 'weekday',
+    'workingday': 'is_workingday',
+    'weathersit': 'weather_situation',
+    'hum': 'humidity',
+    'cnt': 'total_count'
+}, inplace=True)
+
+# 3. Convert tipe data
+day_df['date'] = pd.to_datetime(day_df['date'])
+categorical_cols_day = ['season', 'year', 'month', 'weekday', 'is_holiday', 'is_workingday', 'weather_situation']
+day_df[categorical_cols_day] = day_df[categorical_cols_day].astype('category')
+
+# 4. Cek missing values
+print("Missing values in day_df:\n", day_df.isnull().sum())
+
+# =======================
+# CLEANING hour_df
+# =======================
+
+# 1. Drop kolom yang tidak digunakan
+hour_df.drop(columns=['instant'], inplace=True)
+
+# 2. Rename kolom agar lebih deskriptif
+hour_df.rename(columns={
+    'dteday': 'date',
+    'yr': 'year',
+    'mnth': 'month',
+    'hr': 'hour',
+    'holiday': 'is_holiday',
+    'weekday': 'weekday',
+    'workingday': 'is_workingday',
+    'weathersit': 'weather_situation',
+    'hum': 'humidity',
+    'cnt': 'total_count'
+}, inplace=True)
+
+# 3. Convert tipe data
+hour_df['date'] = pd.to_datetime(hour_df['date'])
+categorical_cols_hour = ['season', 'year', 'month', 'hour', 'weekday', 'is_holiday', 'is_workingday', 'weather_situation']
+hour_df[categorical_cols_hour] = hour_df[categorical_cols_hour].astype('category')
+
+
 # Pilih kolom numerik
 numeric_cols = ['casual', 'registered', 'total_count', 'temp', 'atemp', 'humidity', 'windspeed']
 
