@@ -9,7 +9,13 @@ day_df = pd.read_csv("day.csv")
 # Rename agar konsisten
 day_df.rename(columns={
     'dteday': 'date',
+    'yr': 'year',
+    'mnth': 'month',
+    'holiday': 'is_holiday',
+    'weekday': 'weekday',
+    'workingday': 'is_workingday',
     'weathersit': 'weather_situation',
+    'hum': 'humidity',
     'cnt': 'total_count'
 }, inplace=True)
 day_df['date'] = pd.to_datetime(day_df['date'])
