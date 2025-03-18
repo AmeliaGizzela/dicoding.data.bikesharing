@@ -18,10 +18,10 @@ st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan
 
 # 1. Drop kolom yang tidak digunakan
 # Drop kolom jika ada
-if 'instant' in day_df.columns:
-    day_df.drop(columns=['instant'], inplace=True)
-if 'instant' in hour_df.columns:
-    hour_df.drop(columns=['instant'], inplace=True)
+# if 'instant' in day_df.columns:
+#     day_df.drop(columns=['instant'], inplace=True)
+# if 'instant' in hour_df.columns:
+#     hour_df.drop(columns=['instant'], inplace=True)
 
 
 # 2. Rename kolom agar lebih deskriptif
