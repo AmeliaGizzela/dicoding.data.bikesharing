@@ -4,8 +4,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Load data
-day = pd.read_csv('day.csv')
-hour = pd.read_csv('hour.csv')
+day_df = pd.read_csv('day.csv')
+hour_df = pd.read_csv('hour.csv')
 
 st.set_page_config(page_title="Bike Sharing Dashboard", layout="wide")
 
@@ -18,10 +18,10 @@ st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan
 
 # 1. Drop kolom yang tidak digunakan
 # Drop kolom jika ada
-# if 'instant' in day_df.columns:
-#     day_df.drop(columns=['instant'], inplace=True)
-# if 'instant' in hour_df.columns:
-#     hour_df.drop(columns=['instant'], inplace=True)
+if 'instant' in day_df.columns:
+    day_df.drop(columns=['instant'], inplace=True)
+if 'instant' in hour_df.columns:
+    hour_df.drop(columns=['instant'], inplace=True)
 
 
 # 2. Rename kolom agar lebih deskriptif
