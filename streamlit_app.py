@@ -91,8 +91,8 @@ selected_weather = st.sidebar.multiselect(
 # Pilih Metric
 metric = st.sidebar.radio(
     "Pilih Jenis Data",
-    options=['cnt', 'registered', 'casual'],
-    format_func=lambda x: f"Total ({x})" if x == "cnt" else x.capitalize()
+    options=['total_count', 'registered', 'casual'],
+    format_func=lambda x: f"Total ({x})" if x == "total_count" else x.capitalize()
 )
 
 # === APPLY FILTER ke day_df ===
@@ -192,7 +192,7 @@ with tab2:
         else:
             return 'Malam'
 
-    hour_df['time_segment'] = hour_df['hour'].astype(int).apply(time_segment)
+    filtered_hour_df['time_segment'] = filtered_hour_df['hour'].astype(int).apply(time_segment)
 
     fig1, ax1 = plt.subplots(figsize=(8, 5))
     sns.boxplot(x='time_segment', y='total_count', data=hour_df, palette='Set2', ax=ax1)
@@ -215,13 +215,17 @@ with tab2:
         else:
             return 'Medium Usage'
 
-    hour_df['usage_category'] = hour_df['total_count'].apply(usage_category)
+    filtered_hour_df['usage_category'] = filtered_hour_df['total_count'].apply(usage_category)
 
     fig2, ax2 = plt.subplots(figsize=(7, 4))
     # === CROSSTAB TIME SEGMENT ===
     st.subheader("🕒 Proporsi Usage Category per Waktu")
 
-    ct_time = pd.crosstab(hour_df['time_segment'], hour_df['usage_category'], normalize='index') * 100
+    ct_time = pd.crosstab(
+    filtered_hour_df['time_segment'],
+    filtered_hour_df['usage_category'],
+    normalize='index') * 100
+
 
     fig3, ax3 = plt.subplots(figsize=(8, 5))
     ct_time.plot(kind='bar', stacked=True, colormap='Set2', ax=ax3)
@@ -234,7 +238,10 @@ with tab2:
     # === CROSSTAB WEATHER ===
     st.subheader("🌦️ Proporsi Usage Category per Kondisi Cuaca")
 
-    ct_weather = pd.crosstab(hour_df['weather_situation'], hour_df['usage_category'], normalize='index') * 100
+    ct_weather = pd.crosstab(
+    filtered_hour_df['weather_situation'],
+    filtered_hour_df['usage_category'],
+    normalize='index') * 100
 
     fig4, ax4 = plt.subplots(figsize=(8, 5))
     ct_weather.plot(kind='bar', stacked=True, colormap='coolwarm', ax=ax4)
