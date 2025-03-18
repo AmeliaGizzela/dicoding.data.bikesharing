@@ -153,10 +153,10 @@ st.pyplot(fig)
 st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
 
 weather_mapping = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
-day_filtered['weather_label'] = day_filtered['weather_situation'].map(weather_mapping)
+filtered_day_df['weather_label'] = filtered_day_df['weather_situation'].map(weather_mapping)
 
 fig, ax = plt.subplots()
-sns.boxplot(x='weather_label', y='total_count', data=day_filtered, ax=ax)
+sns.boxplot(x='weather_label', y='total_count', data=filtered_day_df, ax=ax)
 ax.set_title("Distribusi Penyewaan Berdasarkan Cuaca")
 st.pyplot(fig)
 
@@ -164,9 +164,9 @@ st.pyplot(fig)
 st.subheader("🍂 Pengaruh Musim terhadap Penyewaan")
 
 season_mapping = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-day_filtered['season_label'] = day_filtered['season'].map(season_mapping)
+filtered_day_df['season_label'] = filtered_day_df['season'].map(season_mapping)
 
 fig, ax = plt.subplots()
-sns.barplot(x='season_label', y='total_count', data=day_filtered, estimator=sum, ax=ax)
+sns.barplot(x='season_label', y='total_count', data=filtered_day_df, estimator=sum, ax=ax)
 ax.set_title("Total Penyewaan Berdasarkan Musim")
 st.pyplot(fig)
