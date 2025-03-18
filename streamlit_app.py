@@ -12,9 +12,31 @@ st.set_page_config(page_title="Bike Sharing Dashboard", layout="wide")
 st.title("🚲 Bike Sharing Dashboard")
 st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan dataset `day.csv` dan `hour.csv`.")
 
+
+# CLEANING day_df
+# =======================
+
+# 1. Drop kolom yang tidak digunakan
+day_df.drop(columns=['instant'], inplace=True)
+
+# 2. Rename kolom agar lebih deskriptif
+day_df.rename(columns={
+    'dteday': 'date',
+    'yr': 'year',
+    'mnth': 'month',
+    'holiday': 'is_holiday',
+    'weekday': 'weekday',
+    'workingday': 'is_workingday',
+    'weathersit': 'weather_situation',
+    'hum': 'humidity',
+    'cnt': 'total_count'
+}, inplace=True)
+
+# 3. Convert tipe data
+day_df['date'] = pd.to_datetime(day_df['date'])
+categorical_cols_day = ['season', 'year', 'month', 'weekday', 'is_holiday', 'is_workingday', 'weather_situation']
+day_df[categorical_cols_day] = day_df[categorical_cols_day].astype('category')
 #Sidebar
-
-
 # === DICTIONARY OPTIONS ===
 season_options = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
 weather_options = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
