@@ -5,10 +5,31 @@ import matplotlib.pyplot as plt
 
 # Load data dan Rename agar konsisten
 day_df = pd.read_csv("day.csv")
-day_df.rename(columns={'dteday': 'date', 'weathersit': 'weather_situation', 'cnt': 'total_count'}, inplace=True)
+
+# Rename agar konsisten
+day_df.rename(columns={
+    'dteday': 'date',
+    'weathersit': 'weather_situation',
+    'cnt': 'total_count'
+}, inplace=True)
 day_df['date'] = pd.to_datetime(day_df['date'])
 
-# Sidebar interaktif
+# === CLEANING: Remove Outlier ===
+# Pilih kolom numerik
+numeric_cols = ['casual', 'registered', 'total_count', 'temp', 'atemp', 'humidity', 'windspeed']
+
+# Deteksi dan hapus outlier (IQR method)
+for col in numeric_cols:
+    Q1 = day_df[col].quantile(0.25)
+    Q3 = day_df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    day_df = day_df[(day_df[col] >= lower_bound) & (day_df[col] <= upper_bound)]
+
+# Dataset sudah bersih & siap digunakan
+
+# === DASHBOARD (sidebar + tab) ===
 st.sidebar.header("🔍 Filter Dashboard")
 start_date = st.sidebar.date_input("Start Date", day_df['date'].min())
 end_date = st.sidebar.date_input("End Date", day_df['date'].max())
@@ -19,14 +40,12 @@ selected_seasons = st.sidebar.multiselect("Pilih Musim", options=list(season_opt
 selected_weather = st.sidebar.multiselect("Pilih Kondisi Cuaca", options=list(weather_options.keys()), format_func=lambda x: weather_options[x], default=list(weather_options.keys()))
 metric = st.sidebar.radio("Pilih Jenis Data", options=['total_count', 'registered', 'casual'], format_func=lambda x: f"Total ({x})" if x == "total_count" else x.capitalize())
 
-# Filter data
 filtered_df = day_df[
     (day_df['date'] >= pd.to_datetime(start_date)) &
     (day_df['date'] <= pd.to_datetime(end_date)) &
     (day_df['season'].isin(selected_seasons)) &
     (day_df['weather_situation'].isin(selected_weather))
 ]
-
 # ==== LAYOUT MULTI-TAB ====
 tab1, tab2 = st.tabs(["📊 Interactive Dashboard", "📝 Business Analysis"])
 
