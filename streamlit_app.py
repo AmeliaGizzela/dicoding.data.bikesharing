@@ -218,6 +218,31 @@ with tab2:
     hour_df['usage_category'] = hour_df['total_count'].apply(usage_category)
 
     fig2, ax2 = plt.subplots(figsize=(7, 4))
+    # === CROSSTAB TIME SEGMENT ===
+    st.subheader("🕒 Proporsi Usage Category per Waktu")
+
+    ct_time = pd.crosstab(hour_df['time_segment'], hour_df['usage_category'], normalize='index') * 100
+
+    fig3, ax3 = plt.subplots(figsize=(8, 5))
+    ct_time.plot(kind='bar', stacked=True, colormap='Set2', ax=ax3)
+    ax3.set_title("Proporsi Usage Category per Waktu")
+    ax3.set_ylabel("% Usage")
+    ax3.legend(title="Usage Category")
+    ax3.grid(True)
+    st.pyplot(fig3)
+
+    # === CROSSTAB WEATHER ===
+    st.subheader("🌦️ Proporsi Usage Category per Kondisi Cuaca")
+
+    ct_weather = pd.crosstab(hour_df['weather_situation'], hour_df['usage_category'], normalize='index') * 100
+
+    fig4, ax4 = plt.subplots(figsize=(8, 5))
+    ct_weather.plot(kind='bar', stacked=True, colormap='coolwarm', ax=ax4)
+    ax4.set_title("Proporsi Usage Category per Kondisi Cuaca")
+    ax4.set_ylabel("% Usage")
+    ax4.legend(title="Usage Category")
+    ax4.grid(True)
+    st.pyplot(fig4)
     sns.countplot(x='usage_category', data=hour_df, palette='Set3', ax=ax2)
     ax2.set_title("Distribusi Kategori Penggunaan Sepeda")
     ax2.set_ylabel("Jumlah Observasi")
