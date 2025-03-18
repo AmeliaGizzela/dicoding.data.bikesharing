@@ -4,15 +4,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # === LOAD DATA ===
-day_df = pd.read_csv("day.csv")
-day_df['date'] = pd.to_datetime(day_df['dteday'])
-
 # error handling beda nama kolom
+day_df = pd.read_csv("day.csv")
+
+# Rename agar konsisten seperti analisis kamu sebelumnya
 day_df.rename(columns={
+    'dteday': 'date',
     'weathersit': 'weather_situation',
-    'cnt': 'total_count',
-    'dteday': 'date'
+    'cnt': 'total_count'
 }, inplace=True)
+
+# Ubah date ke tipe datetime
+day_df['date'] = pd.to_datetime(day_df['date'])
 
 
 # === DICTIONARY OPTIONS ===
