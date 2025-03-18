@@ -8,7 +8,12 @@ day_df = pd.read_csv("day.csv")
 day_df['date'] = pd.to_datetime(day_df['dteday'])
 
 # error handling beda nama kolom
-(day_df['weathersit'].isin(selected_weather))
+day_df.rename(columns={
+    'weathersit': 'weather_situation',
+    'cnt': 'total_count',
+    'dteday': 'date'
+}, inplace=True)
+
 
 # === DICTIONARY OPTIONS ===
 season_options = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
