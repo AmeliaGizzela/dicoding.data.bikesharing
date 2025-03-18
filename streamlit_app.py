@@ -9,10 +9,6 @@ hour_df = pd.read_csv('hour.csv')
 
 st.set_page_config(page_title="Bike Sharing Dashboard", layout="wide")
 
-st.title("🚲 Bike Sharing Dashboard")
-st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan dataset `day.csv` dan `hour.csv`.")
-
-
 # CLEANING day_df
 # =======================
 
@@ -115,58 +111,115 @@ filtered_hour_df = hour_df[
     (hour_df['weather_situation'].isin(selected_weather))
 ]
 
-st.subheader("📊 Key Metrics")
-col1, col2, col3 = st.columns(3)
+# ==== LAYOUT MULTI-TAB ====
+tab1, tab2 = st.tabs(["📊 Dashboard", "📝 Analisis data lanjutan"])
 
-# === METRICS ===
-with col1:
-    st.metric("Total Penyewaan", f"{filtered_day_df['total_count'].sum():,}")
+# ==== TAB 1: ====
+with tab1:
+    st.title("🚲 Bike Sharing Dashboard")
+    st.markdown("Dashboard ini menyajikan analisis data penyewaan sepeda berdasarkan dataset `day.csv` dan `hour.csv`.")    
+    st.subheader("📊 Key Metrics")
+    col1, col2, col3 = st.columns(3)
+    
+    # === METRICS ===
+    with col1:
+        st.metric("Total Penyewaan", f"{filtered_day_df['total_count'].sum():,}")
+    
+    with col2:
+        st.metric("Rata-rata Penyewaan Harian", f"{filtered_day_df['total_count'].mean():.2f}")
+    
+    with col3:
+        st.metric("Total Pengguna Casual", f"{filtered_day_df['casual'].sum():,}")
+    
+    # === WAKTU PUNCAK PENYEWAAN ===
+    st.subheader("⏰ Waktu Puncak Penyewaan")
+    
+    hour_df['date'] = pd.to_datetime(hour_df['date'])  # sudah rename 'dteday' ke 'date'
+    
+    hour_filtered = hour_df[
+        (hour_df['season'].isin(selected_seasons)) &
+        (hour_df['weather_situation'].isin(selected_weather)) &
+        (hour_df['date'] >= pd.to_datetime(start_date)) &
+        (hour_df['date'] <= pd.to_datetime(end_date))
+    ]
+    
+    peak_hours = hour_filtered.groupby('hour')['total_count'].sum()
+    
+    fig, ax = plt.subplots()
+    sns.lineplot(x=peak_hours.index, y=peak_hours.values, ax=ax)
+    ax.set_title("Penyewaan Sepeda per Jam")
+    ax.set_xlabel("Jam")
+    ax.set_ylabel("Total Penyewaan")
+    st.pyplot(fig)
+    
+    # === PENGARUH CUACA ===
+    st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
+    
+    weather_mapping = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
+    filtered_day_df['weather_label'] = filtered_day_df['weather_situation'].map(weather_mapping)
+    
+    fig, ax = plt.subplots()
+    sns.boxplot(x='weather_label', y='total_count', data=filtered_day_df, ax=ax)
+    ax.set_title("Distribusi Penyewaan Berdasarkan Cuaca")
+    st.pyplot(fig)
+    
+    # === PENGARUH MUSIM ===
+    st.subheader("🍂 Pengaruh Musim terhadap Penyewaan")
+    
+    season_mapping = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
+    filtered_day_df['season_label'] = filtered_day_df['season'].map(season_mapping)
+    
+    fig, ax = plt.subplots()
+    sns.barplot(x='season_label', y='total_count', data=filtered_day_df, estimator=sum, ax=ax)
+    ax.set_title("Total Penyewaan Berdasarkan Musim")
+    st.pyplot(fig)
 
-with col2:
-    st.metric("Rata-rata Penyewaan Harian", f"{filtered_day_df['total_count'].mean():.2f}")
 
-with col3:
-    st.metric("Total Pengguna Casual", f"{filtered_day_df['casual'].sum():,}")
+# ==== TAB 2: BUSINESS ANALYSIS ====
+with tab2:
+    st.title("📌 Business Analysis & Insights")
+    
+    # ===== SEGMENTASI WAKTU =====
+    st.subheader("⏰ Segmentasi Waktu")
 
-# === WAKTU PUNCAK PENYEWAAN ===
-st.subheader("⏰ Waktu Puncak Penyewaan")
+    def time_segment(hour):
+        if 5 <= hour <= 10:
+            return 'Pagi'
+        elif 11 <= hour <= 15:
+            return 'Siang'
+        elif 16 <= hour <= 20:
+            return 'Sore'
+        else:
+            return 'Malam'
 
-hour_df['date'] = pd.to_datetime(hour_df['date'])  # sudah rename 'dteday' ke 'date'
+    hour_df['time_segment'] = hour_df['hour'].astype(int).apply(time_segment)
 
-hour_filtered = hour_df[
-    (hour_df['season'].isin(selected_seasons)) &
-    (hour_df['weather_situation'].isin(selected_weather)) &
-    (hour_df['date'] >= pd.to_datetime(start_date)) &
-    (hour_df['date'] <= pd.to_datetime(end_date))
-]
+    fig1, ax1 = plt.subplots(figsize=(8, 5))
+    sns.boxplot(x='time_segment', y='total_count', data=hour_df, palette='Set2', ax=ax1)
+    ax1.set_title("Distribusi Penyewaan Berdasarkan Segmentasi Waktu")
+    ax1.set_ylabel("Jumlah Penyewaan")
+    ax1.grid(True)
+    st.pyplot(fig1)
 
-peak_hours = hour_filtered.groupby('hour')['total_count'].sum()
+    # ===== BINNING TOTAL COUNT =====
+    st.subheader("📊 Kategori Penggunaan Sepeda")
 
-fig, ax = plt.subplots()
-sns.lineplot(x=peak_hours.index, y=peak_hours.values, ax=ax)
-ax.set_title("Penyewaan Sepeda per Jam")
-ax.set_xlabel("Jam")
-ax.set_ylabel("Total Penyewaan")
-st.pyplot(fig)
+    Q1 = hour_df['total_count'].quantile(0.25)
+    Q3 = hour_df['total_count'].quantile(0.75)
 
-# === PENGARUH CUACA ===
-st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
+    def usage_category(count):
+        if count <= Q1:
+            return 'Low Usage'
+        elif count >= Q3:
+            return 'High Usage'
+        else:
+            return 'Medium Usage'
 
-weather_mapping = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
-filtered_day_df['weather_label'] = filtered_day_df['weather_situation'].map(weather_mapping)
+    hour_df['usage_category'] = hour_df['total_count'].apply(usage_category)
 
-fig, ax = plt.subplots()
-sns.boxplot(x='weather_label', y='total_count', data=filtered_day_df, ax=ax)
-ax.set_title("Distribusi Penyewaan Berdasarkan Cuaca")
-st.pyplot(fig)
-
-# === PENGARUH MUSIM ===
-st.subheader("🍂 Pengaruh Musim terhadap Penyewaan")
-
-season_mapping = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-filtered_day_df['season_label'] = filtered_day_df['season'].map(season_mapping)
-
-fig, ax = plt.subplots()
-sns.barplot(x='season_label', y='total_count', data=filtered_day_df, estimator=sum, ax=ax)
-ax.set_title("Total Penyewaan Berdasarkan Musim")
-st.pyplot(fig)
+    fig2, ax2 = plt.subplots(figsize=(7, 4))
+    sns.countplot(x='usage_category', data=hour_df, palette='Set3', ax=ax2)
+    ax2.set_title("Distribusi Kategori Penggunaan Sepeda")
+    ax2.set_ylabel("Jumlah Observasi")
+    ax2.grid(True)
+    st.pyplot(fig2)
