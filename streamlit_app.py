@@ -268,7 +268,7 @@ with tab1:
     """)
     
     # === PENGARUH CUACA ===
-    st.subheader("🌦️*Pertanyaan 2** Analisis Pengaruh Cuaca terhadap Penyewaan Sepeda")
+    st.subheader("🌦️Pertanyaan 2. Analisis Pengaruh Cuaca terhadap Penyewaan Sepeda")
 
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.boxplot(
@@ -285,18 +285,41 @@ with tab1:
     ax.set_xticklabels(["Cerah", "Berkabut", "Hujan Ringan", "Hujan Lebat"])
     ax.grid(True)
     st.pyplot(fig)
+
+     # Insight
+    st.markdown("""
+    **Insight:**
+    - Pada cuaca cerah dan berkabut, jumlah penyewaan sepeda jauh lebih tinggi.
+    - Penyewaan menurun drastis saat cuaca hujan ringan dan hujan lebat.
+    - Artinya, cuaca buruk sangat mempengaruhi penurunan demand sepeda.
+    """)
     
     # === PENGARUH MUSIM ===
-    st.subheader("🍂 Pengaruh Musim terhadap Penyewaan")
-    
-    season_mapping = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-    filtered_day_df['season_label'] = filtered_day_df['season'].map(season_mapping)
-    
-    fig, ax = plt.subplots()
-    sns.barplot(x='season_label', y='total_count', data=filtered_day_df, estimator=sum, ax=ax)
-    ax.set_title("Total Penyewaan Berdasarkan Musim")
+    st.subheader("🍂Pertanyaan 3. Analisis Pengaruh Musim terhadap Penyewaan Sepeda")
+        
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.boxplot(
+        x="season", 
+        y='total_count', 
+        data=filtered_day_df, 
+        palette="viridis", 
+        ax=ax
+    )
+    ax.set_xlabel("Musim")
+    ax.set_ylabel("Jumlah Penyewaan Sepeda")
+    ax.set_title("Distribusi Penyewaan Sepeda Berdasarkan Musim")
+    ax.set_xticks([0, 1, 2, 3])
+    ax.set_xticklabels(["Spring", "Summer", "Fall", "Winter"])
+    ax.grid(True)
     st.pyplot(fig)
-
+    
+    # === Insight ===
+    st.markdown("""
+    **Insight:**
+    - Penyewaan paling tinggi terjadi saat musim **Fall** dan **Summer**.
+    - Penyewaan lebih rendah di **Winter** dan **Spring**.
+    - Musim memiliki pengaruh yang signifikan terhadap demand.
+    """)
 
 # ==== TAB 2: BUSINESS ANALYSIS ====
 with tab2:
