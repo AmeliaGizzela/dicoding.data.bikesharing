@@ -325,9 +325,7 @@ with tab1:
 with tab2:
     st.title("📌 Business Analysis & Insights")
     
-    # ===== SEGMENTASI WAKTU =====
-    st.subheader("⏰ Segmentasi Waktu")
-
+    # === MANUAL GROUPING BERDASARKAN WAKTU ===
     def time_segment(hour):
         if 5 <= hour <= 10:
             return 'Pagi'
@@ -337,22 +335,13 @@ with tab2:
             return 'Sore'
         else:
             return 'Malam'
-
-    hour_df['time_segment'] = hour_df['hour'].astype(int).apply(time_segment)
-
-    fig1, ax1 = plt.subplots(figsize=(8, 5))
-    sns.boxplot(x='time_segment', y='total_count', data=hour_df, palette='Set2', ax=ax1)
-    ax1.set_title("Distribusi Penyewaan Berdasarkan Segmentasi Waktu")
-    ax1.set_ylabel("Jumlah Penyewaan")
-    ax1.grid(True)
-    st.pyplot(fig1)
-
-    # ===== BINNING TOTAL COUNT =====
-    st.subheader("📊 Kategori Penggunaan Sepeda")
-
-    Q1 = hour_df['total_count'].quantile(0.25)
-    Q3 = hour_df['total_count'].quantile(0.75)
-
+    
+    filtered_hour_df['time_segment'] = filtered_hour_df['hour'].astype(int).apply(time_segment)
+    
+    # === BINNING TOTAL COUNT ===
+    Q1 = filtered_hour_df['total_count'].quantile(0.25)
+    Q3 = filtered_hour_df['total_count'].quantile(0.75)
+    
     def usage_category(count):
         if count <= Q1:
             return 'Low Usage'
@@ -360,37 +349,71 @@ with tab2:
             return 'High Usage'
         else:
             return 'Medium Usage'
-
-    hour_df['usage_category'] = hour_df['total_count'].apply(usage_category)
-
-    fig2, ax2 = plt.subplots(figsize=(7, 4))
-    # === CROSSTAB TIME SEGMENT ===
-    st.subheader("🕒 Proporsi Usage Category per Waktu")
-
-    ct_time = pd.crosstab(hour_df['time_segment'], hour_df['usage_category'], normalize='index') * 100
-
-    fig3, ax3 = plt.subplots(figsize=(8, 5))
+    
+    filtered_hour_df['usage_category'] = filtered_hour_df['total_count'].apply(usage_category)
+    
+    # === VISUALISASI 1: Penyewaan Berdasarkan Segmentasi Waktu ===
+    st.markdown("### **Distribusi Penyewaan Berdasarkan Segmentasi Waktu**")
+    fig1, ax1 = plt.subplots(figsize=(8,5))
+    sns.boxplot(x='time_segment', y='total_count', data=filtered_hour_df, palette='Set2', ax=ax1)
+    ax1.set_title("Distribusi Penyewaan Berdasarkan Segmentasi Waktu")
+    ax1.set_ylabel("Jumlah Penyewaan")
+    ax1.grid(True)
+    st.pyplot(fig1)
+    
+    # === VISUALISASI 2: Distribusi Kategori Penggunaan ===
+    st.markdown("### **Distribusi Kategori Penggunaan Sepeda**")
+    fig2, ax2 = plt.subplots(figsize=(7,4))
+    sns.countplot(x='usage_category', data=filtered_hour_df, palette='Set3', ax=ax2)
+    ax2.set_title("Distribusi Kategori Penggunaan Sepeda")
+    ax2.set_ylabel("Jumlah Observasi")
+    ax2.grid(True)
+    st.pyplot(fig2)
+    
+    # === CROSS ANALYSIS ===
+    st.markdown("### **Cross Analysis: Kapan dan Kondisi Apa Perlu Tambah Sepeda?**")
+    
+    # Crosstab High Usage vs Time Segment
+    ct_time = pd.crosstab(filtered_hour_df['time_segment'], filtered_hour_df['usage_category'], normalize='index') * 100
+    
+    # Crosstab High Usage vs Weather
+    ct_weather = pd.crosstab(filtered_hour_df['weather_situation'], filtered_hour_df['usage_category'], normalize='index') * 100
+    
+    # Tampilkan tabel
+    st.markdown("#### Proporsi Usage Category per Waktu")
+    st.dataframe(ct_time.round(2))
+    
+    st.markdown("#### Proporsi Usage Category per Kondisi Cuaca")
+    st.dataframe(ct_weather.round(2))
+    
+    # === VISUALISASI CROSS ===
+    fig3, ax3 = plt.subplots(figsize=(8,5))
     ct_time.plot(kind='bar', stacked=True, colormap='Set2', ax=ax3)
     ax3.set_title("Proporsi Usage Category per Waktu")
     ax3.set_ylabel("% Usage")
     ax3.legend(title="Usage Category")
     ax3.grid(True)
     st.pyplot(fig3)
-
-    # === CROSSTAB WEATHER ===
-    st.subheader("🌦️ Proporsi Usage Category per Kondisi Cuaca")
-
-    ct_weather = pd.crosstab(hour_df['weather_situation'], hour_df['usage_category'], normalize='index') * 100
-
-    fig4, ax4 = plt.subplots(figsize=(8, 5))
+    
+    fig4, ax4 = plt.subplots(figsize=(8,5))
     ct_weather.plot(kind='bar', stacked=True, colormap='coolwarm', ax=ax4)
     ax4.set_title("Proporsi Usage Category per Kondisi Cuaca")
     ax4.set_ylabel("% Usage")
     ax4.legend(title="Usage Category")
     ax4.grid(True)
     st.pyplot(fig4)
-    sns.countplot(x='usage_category', data=hour_df, palette='Set3', ax=ax2)
-    ax2.set_title("Distribusi Kategori Penggunaan Sepeda")
-    ax2.set_ylabel("Jumlah Observasi")
-    ax2.grid(True)
-    st.pyplot(fig2)
+    
+    # === INSIGHT ===
+    st.markdown("""
+    #### **Kapan sebaiknya deploy sepeda lebih banyak?**
+    - **Pagi** (5:00 - 10:00) dan **Sore** (16:00 - 20:00) menunjukkan proporsi tertinggi untuk High Usage.
+    🚩 **Action:** Tambahkan sepeda lebih banyak di slot waktu ini, khususnya di weekdays.
+    
+    - **Malam** (21:00 - 4:00) memiliki dominasi Low Usage, artinya kamu bisa menurunkan jumlah sepeda aktif di jam ini, kecuali untuk area tertentu (misal: dekat hiburan malam/weekend spot).
+    
+    #### **Kondisi apa yang butuh extra sepeda?**
+    - Pada cuaca **cerah** (Cerah & Berkabut), High Usage mendominasi lebih dari 50% total sewa.
+    🚩 **Action:** Perbanyak sepeda di hari-hari cerah.
+    
+    - Pada **hujan ringan** dan **hujan lebat**, distribusi usage lebih banyak di Low Usage, jadi kamu bisa kurangi jumlah sepeda yang tersedia di stasiun pada hari hujan.
+    """)
