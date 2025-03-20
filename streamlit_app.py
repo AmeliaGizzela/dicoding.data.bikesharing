@@ -228,9 +228,6 @@ with tab1:
     # Statistik dasar penyewaan sepeda harian
     st.subheader("Statistik dasar penyewaan sepeda harian")
     
-    # Tabel statistik
-    st.write(day_df[['casual', 'registered', 'total_count']].describe())
-    
     # Visualisasi distribusi jumlah penyewaan
     desc_stats = day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
     
