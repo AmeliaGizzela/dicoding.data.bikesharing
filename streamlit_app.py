@@ -37,7 +37,14 @@ day_df.rename(columns={
 day_df['date'] = pd.to_datetime(day_df['date'])
 categorical_cols_day = ['season', 'year', 'month', 'weekday', 'is_holiday', 'is_workingday', 'weather_situation']
 day_df[categorical_cols_day] = day_df[categorical_cols_day].astype('category')
+# 4. Cek missing values
+print("Missing values in day_df:\n", day_df.isnull().sum())
 
+# =======================
+# CLEANING hour_df
+# =======================
+
+# 2. Rename kolom agar lebih deskriptif
 hour_df.rename(columns={
     'dteday': 'date',
     'yr': 'year',
@@ -55,6 +62,94 @@ hour_df.rename(columns={
 hour_df['date'] = pd.to_datetime(hour_df['date'])
 categorical_cols_hour = ['season', 'year', 'month', 'hour', 'weekday', 'is_holiday', 'is_workingday', 'weather_situation']
 hour_df[categorical_cols_hour] = hour_df[categorical_cols_hour].astype('category')
+
+#====CLEANING DATA OUTLIER====
+
+"""outier handling day_df"""
+
+# 1. Preprocessing & Outlier Handling
+import numpy as np
+
+# Backup dataset sebelum treatment
+day_df_original = day_df.copy()
+
+# Deteksi outlier (IQR method) dan buat mask outlier
+outlier_mask = pd.DataFrame(False, index=day_df.index, columns=numeric_cols)
+
+for col in numeric_cols:
+    Q1 = day_df[col].quantile(0.25)
+    Q3 = day_df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outlier_mask[col] = (day_df[col] < lower_bound) | (day_df[col] > upper_bound)
+
+# Gabungkan mask dari semua kolom -> True jika baris outlier di kolom manapun
+rows_to_drop = outlier_mask.any(axis=1)
+
+# Drop baris-baris yang memiliki outlier
+day_df_cleaned = day_df[~rows_to_drop]
+
+# Info berapa banyak yang terhapus
+print(f'Total baris sebelum: {len(day_df)}')
+print(f'Total baris setelah: {len(day_df_cleaned)}')
+print(f'Baris yang dihapus karena outlier: {rows_to_drop.sum()}')
+
+# 2. Visualisasi distribusi sebelum & sesudah treatment
+fig, axes = plt.subplots(len(numeric_cols), 2, figsize=(14, len(numeric_cols) * 3))
+for idx, col in enumerate(numeric_cols):
+    sns.boxplot(data=day_df_original, y=col, ax=axes[idx, 0])
+    axes[idx, 0].set_title(f'{col} - Before Outlier Removal')
+    sns.boxplot(data=day_df_cleaned, y=col, ax=axes[idx, 1])
+    axes[idx, 1].set_title(f'{col} - After Outlier Removal')
+plt.tight_layout()
+plt.show()
+
+"""outlier handling hour_df"""
+
+# 1. Preprocessing & Outlier Handling
+import numpy as np
+
+# Backup dataset sebelum treatment
+hour_df_original = hour_df.copy()
+
+# Deteksi outlier (IQR method) dan buat mask outlier
+outlier_mask = pd.DataFrame(False, index=hour_df.index, columns=numeric_cols)
+
+for col in numeric_cols:
+    Q1 = hour_df[col].quantile(0.25)
+    Q3 = hour_df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outlier_mask[col] = (hour_df[col] < lower_bound) | (hour_df[col] > upper_bound)
+
+# Gabungkan mask dari semua kolom -> True jika baris outlier di kolom manapun
+rows_to_drop = outlier_mask.any(axis=1)
+
+# Drop baris-baris yang memiliki outlier
+hour_df_cleaned = hour_df[~rows_to_drop]
+
+# Info berapa banyak yang terhapus
+print(f'Total baris sebelum: {len(hour_df)}')
+print(f'Total baris setelah: {len(hour_df_cleaned)}')
+print(f'Baris yang dihapus karena outlier: {rows_to_drop.sum()}')
+
+# 2. Visualisasi distribusi sebelum & sesudah treatment
+fig, axes = plt.subplots(len(numeric_cols), 2, figsize=(14, len(numeric_cols) * 3))
+for idx, col in enumerate(numeric_cols):
+    sns.boxplot(data=hour_df_original, y=col, ax=axes[idx, 0])
+    axes[idx, 0].set_title(f'{col} - Before Outlier Removal')
+    sns.boxplot(data=hour_df_cleaned, y=col, ax=axes[idx, 1])
+    axes[idx, 1].set_title(f'{col} - After Outlier Removal')
+plt.tight_layout()
+plt.show()
+
+"""RENEW DATASET"""
+
+day_df=day_df_cleaned
+hour_df=hour_df_cleaned
+
 
 
 #Sidebar
