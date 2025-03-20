@@ -225,22 +225,43 @@ with tab1:
         st.metric("Total Pengguna Casual", f"{filtered_day_df['casual'].sum():,}")
     
     # === WAKTU PUNCAK PENYEWAAN ===
-    st.subheader("⏰ Statistik dasar penyewaan sepeda harian")
+    # Statistik dasar penyewaan sepeda harian
+    st.subheader("Statistik dasar penyewaan sepeda harian")
     
+    # Tabel statistik
     st.write(day_df[['casual', 'registered', 'total_count']].describe())
     
-    # Menampilkan visualisasi distribusi jumlah penyewaan
-    st.subheader("Visualisasi Distribusi Jumlah Penyewaan")
+    # Visualisasi distribusi jumlah penyewaan
     desc_stats = day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
     
-    # Buat plot dan tampilkan di Streamlit
-    fig, ax = plt.subplots(figsize=(10,6))
-    desc_stats.T.plot(kind='bar', ax=ax)
-    ax.set_title("Summary Statistics of Casual, Registered, and Total Count")
-    ax.set_ylabel("Jumlah Penyewaan")
-    ax.set_xticklabels(desc_stats.columns, rotation=0)
-    ax.grid(True)
-    st.pyplot(fig)
+    fig1, ax1 = plt.subplots(figsize=(10,6))
+    desc_stats.T.plot(kind='bar', ax=ax1)
+    ax1.set_title("Summary Statistics of Casual, Registered, and Total Count")
+    ax1.set_ylabel("Jumlah Penyewaan")
+    ax1.set_xticklabels(desc_stats.columns, rotation=0)
+    ax1.grid(True)
+    st.pyplot(fig1)
+    
+    # Insight
+    st.markdown("""
+    **Insight:**
+    - *casual* (penyewa non-member) memiliki rata-rata yang lebih rendah dibandingkan *registered* (penyewa member).
+    - Penyewa *registered* lebih dominan dibandingkan *casual*, ini menunjukkan bahwa sebagian besar pelanggan adalah pengguna yang sudah berlangganan atau rutin.
+    """)
+    
+    # Statistik dasar penyewaan sepeda per Jam
+    st.subheader("Statistik dasar penyewaan sepeda per Jam")
+    
+    avg_rent_by_hour = hour_df.groupby('hour')['total_count'].mean()
+    
+    fig2, ax2 = plt.subplots(figsize=(12, 6))
+    sns.lineplot(x=avg_rent_by_hour.index, y=avg_rent_by_hour.values, marker="o", color="b", ax=ax2)
+    ax2.set_xticks(range(0, 24))
+    ax2.set_xlabel("Jam dalam Sehari")
+    ax2.set_ylabel("Rata-rata Penyewaan Sepeda")
+    ax2.set_title("Rata-rata Penyewaan Sepeda Berdasarkan Jam dalam Sehari")
+    ax2.grid(True)
+    st.pyplot(fig2)
     
     # === PENGARUH CUACA ===
     st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
