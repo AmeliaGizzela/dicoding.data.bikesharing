@@ -65,6 +65,10 @@ hour_df[categorical_cols_hour] = hour_df[categorical_cols_hour].astype('category
 
 #====CLEANING DATA OUTLIER====
 
+# Pilih hanya kolom numerik
+numeric_cols_day = day_df.select_dtypes(include=['int64', 'float64']).columns
+numeric_cols_hour = hour_df.select_dtypes(include=['int64', 'float64']).columns
+
 """outier handling day_df"""
 
 # 1. Preprocessing & Outlier Handling
@@ -74,9 +78,9 @@ import numpy as np
 day_df_original = day_df.copy()
 
 # Deteksi outlier (IQR method) dan buat mask outlier
-outlier_mask = pd.DataFrame(False, index=day_df.index, columns=numeric_cols)
+outlier_mask = pd.DataFrame(False, index=day_df.index, columns=numeric_cols_day)
 
-for col in numeric_cols:
+for col in numeric_cols_day:
     Q1 = day_df[col].quantile(0.25)
     Q3 = day_df[col].quantile(0.75)
     IQR = Q3 - Q1
@@ -96,8 +100,8 @@ print(f'Total baris setelah: {len(day_df_cleaned)}')
 print(f'Baris yang dihapus karena outlier: {rows_to_drop.sum()}')
 
 # 2. Visualisasi distribusi sebelum & sesudah treatment
-fig, axes = plt.subplots(len(numeric_cols), 2, figsize=(14, len(numeric_cols) * 3))
-for idx, col in enumerate(numeric_cols):
+fig, axes = plt.subplots(len(numeric_cols_day), 2, figsize=(14, len(numeric_cols_day) * 3))
+for idx, col in enumerate(numeric_cols_day):
     sns.boxplot(data=day_df_original, y=col, ax=axes[idx, 0])
     axes[idx, 0].set_title(f'{col} - Before Outlier Removal')
     sns.boxplot(data=day_df_cleaned, y=col, ax=axes[idx, 1])
@@ -114,9 +118,9 @@ import numpy as np
 hour_df_original = hour_df.copy()
 
 # Deteksi outlier (IQR method) dan buat mask outlier
-outlier_mask = pd.DataFrame(False, index=hour_df.index, columns=numeric_cols)
+outlier_mask = pd.DataFrame(False, index=hour_df.index, columns=numeric_cols_hour)
 
-for col in numeric_cols:
+for col in numeric_cols_hour:
     Q1 = hour_df[col].quantile(0.25)
     Q3 = hour_df[col].quantile(0.75)
     IQR = Q3 - Q1
@@ -136,8 +140,8 @@ print(f'Total baris setelah: {len(hour_df_cleaned)}')
 print(f'Baris yang dihapus karena outlier: {rows_to_drop.sum()}')
 
 # 2. Visualisasi distribusi sebelum & sesudah treatment
-fig, axes = plt.subplots(len(numeric_cols), 2, figsize=(14, len(numeric_cols) * 3))
-for idx, col in enumerate(numeric_cols):
+fig, axes = plt.subplots(len(numeric_cols_hour), 2, figsize=(14, len(numeric_cols_hour) * 3))
+for idx, col in enumerate(numeric_cols_hour):
     sns.boxplot(data=hour_df_original, y=col, ax=axes[idx, 0])
     axes[idx, 0].set_title(f'{col} - Before Outlier Removal')
     sns.boxplot(data=hour_df_cleaned, y=col, ax=axes[idx, 1])
@@ -149,7 +153,6 @@ plt.show()
 
 day_df=day_df_cleaned
 hour_df=hour_df_cleaned
-
 
 
 #Sidebar
