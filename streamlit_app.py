@@ -229,7 +229,7 @@ with tab1:
     st.subheader("Statistik dasar penyewaan sepeda harian")
     
     # Visualisasi distribusi jumlah penyewaan
-    desc_stats = day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
+    desc_stats = filtered_day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
     
     fig1, ax1 = plt.subplots(figsize=(10,6))
     desc_stats.T.plot(kind='bar', ax=ax1)
@@ -249,7 +249,7 @@ with tab1:
     # Statistik dasar penyewaan sepeda per Jam
     st.subheader("Statistik dasar penyewaan sepeda per Jam")
     
-    avg_rent_by_hour = hour_df.groupby('hour')['total_count'].mean()
+    avg_rent_by_hour = filtered_hour_df.groupby('hour')['total_count'].mean()
     
     fig2, ax2 = plt.subplots(figsize=(12, 6))
     sns.lineplot(x=avg_rent_by_hour.index, y=avg_rent_by_hour.values, marker="o", color="b", ax=ax2)
