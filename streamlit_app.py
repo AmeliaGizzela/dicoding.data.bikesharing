@@ -259,16 +259,31 @@ with tab1:
     ax2.set_title("Rata-rata Penyewaan Sepeda Berdasarkan Jam dalam Sehari")
     ax2.grid(True)
     st.pyplot(fig2)
+
+        # Insight
+    st.markdown("""
+    **Insight:**
+    - Nilai minimum total_count adalah 22 dan maksimum mencapai 8714, menandakan adanya variasi besar dalam jumlah penyewaan harian.
+    - Penyewaan sepeda meningkat tajam pada pukul **07:00 - 09:00** (jam berangkat kerja) dan **17:00 - 19:00** (jam pulang kerja).
+    """)
     
     # === PENGARUH CUACA ===
-    st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
-    
-    weather_mapping = {1: 'Cerah', 2: 'Berkabut', 3: 'Hujan Ringan', 4: 'Hujan Lebat'}
-    filtered_day_df['weather_label'] = filtered_day_df['weather_situation'].map(weather_mapping)
-    
-    fig, ax = plt.subplots()
-    sns.boxplot(x='weather_label', y='total_count', data=filtered_day_df, ax=ax)
-    ax.set_title("Distribusi Penyewaan Berdasarkan Cuaca")
+    st.subheader("🌦️*Pertanyaan 2** Analisis Pengaruh Cuaca terhadap Penyewaan Sepeda")
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.boxplot(
+        x='weather_situation', 
+        y='total_count', 
+        data=filtered_day_df, 
+        palette="coolwarm", 
+        ax=ax
+    )
+    ax.set_xlabel("Kondisi Cuaca")
+    ax.set_ylabel("Jumlah Penyewaan Sepeda")
+    ax.set_title("Distribusi Penyewaan Sepeda Berdasarkan Kondisi Cuaca")
+    ax.set_xticks([0,1,2,3])
+    ax.set_xticklabels(["Cerah", "Berkabut", "Hujan Ringan", "Hujan Lebat"])
+    ax.grid(True)
     st.pyplot(fig)
     
     # === PENGARUH MUSIM ===
