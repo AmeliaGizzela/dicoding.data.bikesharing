@@ -69,8 +69,6 @@ hour_df[categorical_cols_hour] = hour_df[categorical_cols_hour].astype('category
 numeric_cols_day = day_df.select_dtypes(include=['int64', 'float64']).columns
 numeric_cols_hour = hour_df.select_dtypes(include=['int64', 'float64']).columns
 
-"""outier handling day_df"""
-
 # 1. Preprocessing & Outlier Handling
 import numpy as np
 
@@ -108,8 +106,6 @@ for idx, col in enumerate(numeric_cols_day):
     axes[idx, 1].set_title(f'{col} - After Outlier Removal')
 plt.tight_layout()
 plt.show()
-
-"""outlier handling hour_df"""
 
 # 1. Preprocessing & Outlier Handling
 import numpy as np
@@ -149,7 +145,6 @@ for idx, col in enumerate(numeric_cols_hour):
 plt.tight_layout()
 plt.show()
 
-"""RENEW DATASET"""
 
 day_df=day_df_cleaned
 hour_df=hour_df_cleaned
@@ -230,25 +225,20 @@ with tab1:
         st.metric("Total Pengguna Casual", f"{filtered_day_df['casual'].sum():,}")
     
     # === WAKTU PUNCAK PENYEWAAN ===
-    st.subheader("⏰ Waktu Puncak Penyewaan")
+    st.subheader("⏰ Statistik dasar penyewaan sepeda harian")
     
-    hour_df['date'] = pd.to_datetime(hour_df['date'])  # sudah rename 'dteday' ke 'date'
+    # Statistik dasar penyewaan sepeda harian
+    print(day_df[['casual', 'registered', 'total_count']].describe())
     
-    hour_filtered = hour_df[
-        (hour_df['season'].isin(selected_seasons)) &
-        (hour_df['weather_situation'].isin(selected_weather)) &
-        (hour_df['date'] >= pd.to_datetime(start_date)) &
-        (hour_df['date'] <= pd.to_datetime(end_date))
-    ]
+    # Visualisasi distribusi jumlah penyewaan
+    desc_stats = day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
     
-    peak_hours = hour_filtered.groupby('hour')['total_count'].sum()
-    
-    fig, ax = plt.subplots()
-    sns.lineplot(x=peak_hours.index, y=peak_hours.values, ax=ax)
-    ax.set_title("Penyewaan Sepeda per Jam")
-    ax.set_xlabel("Jam")
-    ax.set_ylabel("Total Penyewaan")
-    st.pyplot(fig)
+    desc_stats.T.plot(kind='bar', figsize=(10,6))
+    plt.title("Summary Statistics of Casual, Registered, and Total Count")
+    plt.ylabel("Jumlah Penyewaan")
+    plt.xticks(rotation=0)
+    plt.grid(True)
+    plt.show()
     
     # === PENGARUH CUACA ===
     st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
