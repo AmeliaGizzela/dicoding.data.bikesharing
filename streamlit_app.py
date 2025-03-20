@@ -227,18 +227,20 @@ with tab1:
     # === WAKTU PUNCAK PENYEWAAN ===
     st.subheader("⏰ Statistik dasar penyewaan sepeda harian")
     
-    # Statistik dasar penyewaan sepeda harian
-    print(day_df[['casual', 'registered', 'total_count']].describe())
+    st.write(day_df[['casual', 'registered', 'total_count']].describe())
     
-    # Visualisasi distribusi jumlah penyewaan
+    # Menampilkan visualisasi distribusi jumlah penyewaan
+    st.subheader("Visualisasi Distribusi Jumlah Penyewaan")
     desc_stats = day_df[['casual', 'registered', 'total_count']].agg(['mean', 'median', 'min', 'max'])
     
-    desc_stats.T.plot(kind='bar', figsize=(10,6))
-    plt.title("Summary Statistics of Casual, Registered, and Total Count")
-    plt.ylabel("Jumlah Penyewaan")
-    plt.xticks(rotation=0)
-    plt.grid(True)
-    plt.show()
+    # Buat plot dan tampilkan di Streamlit
+    fig, ax = plt.subplots(figsize=(10,6))
+    desc_stats.T.plot(kind='bar', ax=ax)
+    ax.set_title("Summary Statistics of Casual, Registered, and Total Count")
+    ax.set_ylabel("Jumlah Penyewaan")
+    ax.set_xticklabels(desc_stats.columns, rotation=0)
+    ax.grid(True)
+    st.pyplot(fig)
     
     # === PENGARUH CUACA ===
     st.subheader("🌦️ Pengaruh Cuaca terhadap Penyewaan")
